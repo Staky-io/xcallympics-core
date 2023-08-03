@@ -1,38 +1,56 @@
+import hre from "hardhat";
+import fs from "fs";
 import { ethers } from "hardhat";
+import { getNetworkSettings } from "./utils";
 
 async function main() {
-  const CALL_SERVICE = '0x9B68bd3a04Ff138CaFfFe6D96Bc330c699F34901' // ETH sepolia testnet address
-  const ETH_NETWORK_ID = '0xaa36a7.eth2' // ETH sepolia network id
+    try {
+        const { callService, networkID } = getNetworkSettings(hre.network.name)
 
-  const RunnerNFT = await ethers.getContractFactory("XCallympicsNFT");
-  const runnerNFT = await RunnerNFT.deploy('XCallympics Runner', 'XCR', 'https://ipfs.io/ipfs/');
+        const contracts: object[] = [];
 
-  console.log(`RunnerNFT deployed to ${runnerNFT.address}`);
+        const deploy = async (factory: string, args: any[] = [], overrides = {}) => {
+            const ContractFactory = await ethers.getContractFactory(factory);
+            const contract = await ContractFactory.deploy(...args, overrides);
 
-  const NFTBridge = await ethers.getContractFactory("NFTBridge");
-  const nftbridge = await NFTBridge.deploy(
-    runnerNFT.address,
-    CALL_SERVICE,
-    ETH_NETWORK_ID
-  );
+            await contract.deployed();
 
-  await nftbridge.deployed();
+            contracts.push({ name: factory, address: contract.address, args: args });
 
-  console.log(`NFTbridge deployed to ${nftbridge.address}`);
+            console.log(`${factory}: ${contract.address}`);
+            return contract;
+        }
 
-  await runnerNFT.transferOwnership(nftbridge.address);
+        const RunnerNFT = await deploy('XCallympicsNFT', ['XCallympics Runner', 'XCR', 'https://ipfs.io/ipfs/']);
+        const nftbridge = await deploy('NFTBridge', [RunnerNFT.address, callService, networkID]);
 
-  console.log(`runnerNFT ownership transfered to NFTBridge`);
+        await nftbridge.deployed();
 
-  console.log('NFTBridge initialized with the following params:')
-  console.log(`runnerNFT address: ${runnerNFT.address}`)
-  console.log(`Call service address: ${CALL_SERVICE}`)
-  console.log(`Network ID: ${ETH_NETWORK_ID}`)
+        await RunnerNFT.transferOwnership(nftbridge.address);
+
+        console.log(`RunnerNFT ownership transfered to NFTBridge`);
+
+        console.log('NFTBridge initialized with the following params:')
+        console.log(`runnerNFT address: ${RunnerNFT.address}`)
+        console.log(`Call service address: ${callService}`)
+        console.log(`Network ID: ${networkID}`)
+
+        if (!fs.existsSync('./deployments')) {
+            fs.mkdirSync('./deployments');
+        }
+
+        fs.writeFileSync(
+            `deployments/nftbridge-${hre.network.name}.json`,
+            JSON.stringify(contracts, null, 4)
+        );
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+    console.error(error);
+    process.exitCode = 1;
 });
