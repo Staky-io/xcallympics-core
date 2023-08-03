@@ -1,48 +1,84 @@
-import hre from "hardhat";
 import fs from "fs";
-import { ethers } from "hardhat";
-import { getNetworkSettings } from "./utils";
+import {
+    deployBSC,
+    deployETH,
+    getBSCNetworkSettings,
+    getETHNetworkSettings
+} from "./utils";
 
 async function main() {
+    const privateKey = process.env.EVM_PRIVATE_KEY || undefined;
+
+    if (!privateKey) {
+        throw new Error('EVM_PRIVATE_KEY env variable is not set')
+    }
+
     try {
-        const { callService, networkID } = getNetworkSettings(hre.network.name)
+        const ETHNetworkSettings = getETHNetworkSettings()
+        const BSCNetworkSettings = getBSCNetworkSettings()
 
-        const contracts: object[] = [];
+        const contractsETH: object[] = [];
+        const contractsBSC: object[] = [];
 
-        const deploy = async (factory: string, args: any[] = [], overrides = {}) => {
-            const ContractFactory = await ethers.getContractFactory(factory);
-            const contract = await ContractFactory.deploy(...args, overrides);
+        // Deploy on ETH
+        const runnerNFTArgs = ['XCallympics Runner', 'XCR', 'https://ipfs.io/ipfs/'];
+        const RunnerNFTETH = await deployETH('XCallympicsNFT', runnerNFTArgs);
+        contractsETH.push({ name: 'RunnerNFT', address: RunnerNFTETH.address, args: runnerNFTArgs });
+        
+        const NFTBridgeETHArgs = [
+            RunnerNFTETH.address,
+            ETHNetworkSettings.callService,
+            ETHNetworkSettings.networkID
+        ]
+        
+        const NFTBridgeETH = await deployETH('NFTBridge', NFTBridgeETHArgs);
+        contractsETH.push({ name: 'NFTBridge', address: NFTBridgeETH.address, args: NFTBridgeETHArgs });
+        
+        await NFTBridgeETH.deployed();
+        await RunnerNFTETH.transferOwnership(NFTBridgeETH.address);
+        console.log(`[ETH] RunnerNFT ownership transfered to NFTBridge`);
+        
+        // Deploy on BSC
+        const RunnerNFTBSC = await deployBSC('XCallympicsNFT', runnerNFTArgs);
+        contractsBSC.push({ name: 'RunnerNFT', address: RunnerNFTBSC.address, args: runnerNFTArgs });
+        
+        const NFTBridgeBSCArgs = [
+            RunnerNFTBSC.address,
+            BSCNetworkSettings.callService,
+            BSCNetworkSettings.networkID
+        ]
+        
+        const NFTBridgeBSC = await deployBSC('NFTBridge', NFTBridgeBSCArgs);
+        contractsBSC.push({ name: 'NFTBridge', address: NFTBridgeBSC.address, args: NFTBridgeBSCArgs });
 
-            await contract.deployed();
+        await NFTBridgeBSC.deployed();
+        await RunnerNFTBSC.transferOwnership(NFTBridgeBSC.address);
+        console.log(`[BSC] RunnerNFT ownership transfered to NFTBridge`);
 
-            contracts.push({ name: factory, address: contract.address, args: args });
+        // Bridge config
 
-            console.log(`${factory}: ${contract.address}`);
-            return contract;
-        }
-
-        const RunnerNFT = await deploy('XCallympicsNFT', ['XCallympics Runner', 'XCR', 'https://ipfs.io/ipfs/']);
-        const nftbridge = await deploy('NFTBridge', [RunnerNFT.address, callService, networkID]);
-
-        await nftbridge.deployed();
-
-        await RunnerNFT.transferOwnership(nftbridge.address);
-
-        console.log(`RunnerNFT ownership transfered to NFTBridge`);
-
-        console.log('NFTBridge initialized with the following params:')
-        console.log(`runnerNFT address: ${RunnerNFT.address}`)
-        console.log(`Call service address: ${callService}`)
-        console.log(`Network ID: ${networkID}`)
+        await NFTBridgeETH.allowBridgeAddress(`btp://${BSCNetworkSettings.networkID}/${NFTBridgeBSC.address}`);
+        console.log(`[ETH] BSC bridge address allowed`);
+        await NFTBridgeBSC.allowBridgeAddress(`btp://${ETHNetworkSettings.networkID}/${NFTBridgeETH.address}`);
+        console.log(`[BSC] ETH bridge address allowed`);
 
         if (!fs.existsSync('./deployments')) {
             fs.mkdirSync('./deployments');
         }
 
-        fs.writeFileSync(
-            `deployments/nftbridge-${hre.network.name}.json`,
-            JSON.stringify(contracts, null, 4)
-        );
+        if (contractsETH.length > 0) {    
+            fs.writeFileSync(
+                'deployments/nftbridge-ETH.json',
+                JSON.stringify(contractsETH, null, 4)
+            );
+        }
+
+        if (contractsBSC.length > 0) {    
+            fs.writeFileSync(
+                'deployments/nftbridge-BSC.json',
+                JSON.stringify(contractsBSC, null, 4)
+            );
+        }
     } catch (err) {
         console.error(err);
     }

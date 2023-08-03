@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import 'hardhat-gas-reporter';
+import { constants } from './scripts/utils';
 
 const privateKey = process.env.EVM_PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -29,16 +30,16 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://sepolia.infura.io/v3/9c3444fd560e48a8939fb881df433c64",
+        url: constants.ETH_RPC_URL,
       }
     },
     sepolia: {
-      url: 'https://sepolia.infura.io/v3/9c3444fd560e48a8939fb881df433c64',
+      url: constants.ETH_RPC_URL,
       accounts: [privateKey],
       chainId: 11155111,
     },
     bsc_testnet: {
-      url: 'https://data-seed-prebsc-1-s3.binance.org:8545/',
+      url: constants.BSC_RPC_URL,
       accounts: [privateKey],
       chainId: 97,
     }

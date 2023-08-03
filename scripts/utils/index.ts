@@ -1,3 +1,11 @@
+import { providers, Wallet } from "ethers"
+import { ethers } from "hardhat"
+
+export const constants = {
+    ETH_RPC_URL: 'https://sepolia.infura.io/v3/9c3444fd560e48a8939fb881df433c64',
+    BSC_RPC_URL: 'https://data-seed-prebsc-1-s3.binance.org:8545/',
+}
+
 export const getNetworkSettings = (network: string): { callService: string, networkID: string } => {
     switch (network) {
         case 'sepolia':
@@ -18,4 +26,44 @@ export const getNetworkSettings = (network: string): { callService: string, netw
         default:
             throw new Error('Invalid network')
     }
+}
+
+export const getETHNetworkSettings = (): { callService: string, networkID: string } => {
+    return getNetworkSettings('sepolia')
+}
+
+export const getBSCNetworkSettings = (): { callService: string, networkID: string } => {
+    return getNetworkSettings('bsc_testnet')
+}
+
+export const getETHSigner = (privateKey: string): Wallet => {
+    const provider = new providers.JsonRpcProvider(constants.ETH_RPC_URL)
+    return new Wallet(privateKey, provider)
+}
+
+export const getBSCSigner = (privateKey: string): Wallet => {
+    const provider = new providers.JsonRpcProvider(constants.BSC_RPC_URL)
+    return new Wallet(privateKey, provider)
+}
+
+export const deployETH = async (factory: string, args: any[] = [], overrides = {}) => {
+    const ethSigner = getETHSigner(process.env.EVM_PRIVATE_KEY!)
+    const ContractFactory = await ethers.getContractFactory(factory, ethSigner);
+    const contract = await ContractFactory.deploy(...args, overrides);
+
+    await contract.deployed();
+
+    console.log(`[ETH] ${factory}: ${contract.address}`);
+    return contract;
+}
+
+export const deployBSC = async (factory: string, args: any[] = [], overrides = {}) => {
+    const bscSigner = getBSCSigner(process.env.EVM_PRIVATE_KEY!)
+    const ContractFactory = await ethers.getContractFactory(factory, bscSigner);
+    const contract = await ContractFactory.deploy(...args, overrides);
+
+    await contract.deployed();
+
+    console.log(`[BSC] ${factory}: ${contract.address}`);
+    return contract;
 }
