@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
     string private baseURI;
 
+    mapping(address => uint256[]) public ownerToIds;
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -31,6 +33,7 @@ contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
         uint256 _id
     ) public onlyOwner {
         _safeMint(_to, _id);
+        ownerToIds[_to].push(_id);
     }
 
     function _beforeTokenTransfer(
@@ -40,5 +43,17 @@ contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
         uint256 _batchSize
     ) internal override(ERC721) {
         super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
+
+        if (_from != address(0)) {
+            uint256[] storage fromIds = ownerToIds[_from];
+
+            for (uint256 i = 0; i < fromIds.length; i++) {
+                if (fromIds[i] == _tokenId) {
+                    fromIds[i] = fromIds[fromIds.length - 1];
+                    fromIds.pop();
+                    break;
+                }
+            }
+        }
     }
 }
