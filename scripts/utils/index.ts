@@ -1,5 +1,4 @@
 import { providers, Wallet } from "ethers"
-import { ethers } from "hardhat"
 
 export const constants = {
     ETH_RPC_URL: 'https://sepolia.infura.io/v3/9c3444fd560e48a8939fb881df433c64',
@@ -44,26 +43,4 @@ export const getETHSigner = (privateKey: string): Wallet => {
 export const getBSCSigner = (privateKey: string): Wallet => {
     const provider = new providers.JsonRpcProvider(constants.BSC_RPC_URL)
     return new Wallet(privateKey, provider)
-}
-
-export const deployETH = async (factory: string, args: any[] = [], overrides = {}) => {
-    const ethSigner = getETHSigner(process.env.EVM_PRIVATE_KEY!)
-    const ContractFactory = await ethers.getContractFactory(factory, ethSigner);
-    const contract = await ContractFactory.deploy(...args, overrides);
-
-    await contract.deployed();
-
-    console.log(`[ETH] ${factory}: ${contract.address}`);
-    return contract;
-}
-
-export const deployBSC = async (factory: string, args: any[] = [], overrides = {}) => {
-    const bscSigner = getBSCSigner(process.env.EVM_PRIVATE_KEY!)
-    const ContractFactory = await ethers.getContractFactory(factory, bscSigner);
-    const contract = await ContractFactory.deploy(...args, overrides);
-
-    await contract.deployed();
-
-    console.log(`[BSC] ${factory}: ${contract.address}`);
-    return contract;
 }

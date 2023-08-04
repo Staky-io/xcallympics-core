@@ -1,10 +1,33 @@
 import fs from "fs";
+import { ethers, run } from "hardhat";
 import {
-    deployBSC,
-    deployETH,
     getBSCNetworkSettings,
-    getETHNetworkSettings
+    getBSCSigner,
+    getETHNetworkSettings,
+    getETHSigner
 } from "./utils";
+
+const deployETH = async (factory: string, args: any[] = [], overrides = {}) => {
+    const ethSigner = getETHSigner(process.env.EVM_PRIVATE_KEY!)
+    const ContractFactory = await ethers.getContractFactory(factory, ethSigner);
+    const contract = await ContractFactory.deploy(...args, overrides);
+
+    await contract.deployed();
+
+    console.log(`[ETH] ${factory}: ${contract.address}`);
+    return contract;
+}
+
+const deployBSC = async (factory: string, args: any[] = [], overrides = {}) => {
+    const bscSigner = getBSCSigner(process.env.EVM_PRIVATE_KEY!)
+    const ContractFactory = await ethers.getContractFactory(factory, bscSigner);
+    const contract = await ContractFactory.deploy(...args, overrides);
+
+    await contract.deployed();
+
+    console.log(`[BSC] ${factory}: ${contract.address}`);
+    return contract;
+}
 
 async function main() {
     const privateKey = process.env.EVM_PRIVATE_KEY || undefined;
@@ -66,16 +89,16 @@ async function main() {
             fs.mkdirSync('./deployments');
         }
 
-        if (contractsETH.length > 0) {    
+        if (contractsETH.length > 0) {
             fs.writeFileSync(
-                'deployments/nftbridge-ETH.json',
+                'deployments/deployment-ETH.json',
                 JSON.stringify(contractsETH, null, 4)
             );
         }
 
-        if (contractsBSC.length > 0) {    
+        if (contractsBSC.length > 0) {
             fs.writeFileSync(
-                'deployments/nftbridge-BSC.json',
+                'deployments/deployment-BSC.json',
                 JSON.stringify(contractsBSC, null, 4)
             );
         }

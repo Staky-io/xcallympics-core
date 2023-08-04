@@ -1,0 +1,20 @@
+[
+    {
+        "name": "RunnerNFT",
+        "address": "0x58dc37C0dc7d3ACc11B61415B26b9Ad913Ae3A4D",
+        "args": [
+            "XCallympics Runner",
+            "XCR",
+            "https://ipfs.io/ipfs/"
+        ]
+    },
+    {
+        "name": "NFTBridge",
+        "address": "0x2c61cfBd5AEd2217a2Fd6c6E9eB3c3221Ff3C4E6",
+        "args": [
+            "0x58dc37C0dc7d3ACc11B61415B26b9Ad913Ae3A4D",
+            "0x6193c0b12116c4963594761d859571b9950a8686",
+            "0x61.bsc"
+        ]
+    }
+]
