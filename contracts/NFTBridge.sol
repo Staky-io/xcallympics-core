@@ -88,7 +88,7 @@ contract NFTBridge is XCallBase {
         return id;
     }
 
-    function getID() public view returns (uint256) {
+    function getID() private view returns (uint256) {
         uint256 prefix = uint256(keccak256(abi.encodePacked(networkID))) % 100000;
         return ((uint256(keccak256(abi.encodePacked(msg.sender))) % block.number) + (block.timestamp - 1600000000)) * prefix;
     }
