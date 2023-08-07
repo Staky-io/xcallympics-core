@@ -16,7 +16,7 @@ contract NFTBridge is XCallBase {
     mapping(uint256 => bool) public usedNonces; // id => true/false
 
     event TokenMinted(address indexed _to, uint indexed _id);
-    event TokenBridged(address indexed _from, string indexed _to, uint indexed _id);
+    event TokenBridgedToChain(address indexed _from, string indexed _to, uint indexed _id);
     event TokenBurned(address indexed _from, uint indexed _id);
     event NFTAddressChanged(address indexed _from, address indexed _to);
 
@@ -124,11 +124,9 @@ contract NFTBridge is XCallBase {
         bytes memory payload = abi.encode("BRIDGE_NFT_FROM_CHAIN", abi.encode(_to, _id));
         bytes memory rollbackData = abi.encode("ROLLBACK_BRIDGE_NFT_FROM_CHAIN", abi.encode(msg.sender, _id));
 
-        emit TokenBurned(msg.sender, _id);
         token.safeTransferFrom(msg.sender, address(this), _id);
         token.burn(_id);
 
-        emit TokenBridged(msg.sender, _to, _id);
         _sendXCallMessage(_bridgeAddress, payload, rollbackData);
     }
 
@@ -150,7 +148,7 @@ contract NFTBridge is XCallBase {
 
         _bridgeNFTToChain(bridgeAddress, _to, _id);
 
-        emit TokenBridged(msg.sender, _to, _id);
+        emit TokenBridgedToChain(msg.sender, _to, _id);
 
         if (msg.value > fee) {
             payable(msg.sender).transfer(msg.value - fee);
