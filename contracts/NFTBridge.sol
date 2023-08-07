@@ -79,7 +79,6 @@ contract NFTBridge is XCallBase {
         uint256 id = getID();
 
         require(!usedNonces[id], "NFTBridge: Nonce already used");
-        require(nft.ownerOf(id) == address(0), "NFTBridge: NFT already minted");
 
         usedNonces[id] = true;
         nft.mint(msg.sender, id);

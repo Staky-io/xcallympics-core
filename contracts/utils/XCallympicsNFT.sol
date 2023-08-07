@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
     string private baseURI;
 
-    mapping(address => uint256[]) public ownerToIds;
+    mapping(address => uint256[]) private ownerToIds;
 
     constructor(
         string memory _name,
@@ -20,6 +20,10 @@ contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
 
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
+    }
+
+    function getUserOwnedTokens(address _owner) public view returns (uint256[] memory) {
+        return ownerToIds[_owner];
     }
 
     function setBaseURI(
