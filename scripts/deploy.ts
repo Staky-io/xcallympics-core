@@ -44,33 +44,33 @@ async function main() {
         const contractsBSC: object[] = [];
 
         // Deploy on ETH
-        const runnerNFTArgs = ['XCallympics Runner', 'XCR', 'https://ipfs.io/ipfs/'];
+        const runnerNFTArgs = ['XCallympics Runner', 'XCALLR', 'https://ipfs.io/ipfs/QmZnHVofAZVG7kMFc42waR1hTV36a1VqXHseCGouhEaDsS'];
         const RunnerNFTETH = await deployETH('XCallympicsNFT', runnerNFTArgs);
         contractsETH.push({ name: 'RunnerNFT', address: RunnerNFTETH.address, args: runnerNFTArgs });
-        
+
         const NFTBridgeETHArgs = [
             RunnerNFTETH.address,
             ETHNetworkSettings.callService,
             ETHNetworkSettings.networkID
         ]
-        
+
         const NFTBridgeETH = await deployETH('NFTBridge', NFTBridgeETHArgs);
         contractsETH.push({ name: 'NFTBridge', address: NFTBridgeETH.address, args: NFTBridgeETHArgs });
-        
+
         await NFTBridgeETH.deployed();
         await RunnerNFTETH.transferOwnership(NFTBridgeETH.address);
         console.log(`[ETH] RunnerNFT ownership transfered to NFTBridge`);
-        
+
         // Deploy on BSC
         const RunnerNFTBSC = await deployBSC('XCallympicsNFT', runnerNFTArgs);
         contractsBSC.push({ name: 'RunnerNFT', address: RunnerNFTBSC.address, args: runnerNFTArgs });
-        
+
         const NFTBridgeBSCArgs = [
             RunnerNFTBSC.address,
             BSCNetworkSettings.callService,
             BSCNetworkSettings.networkID
         ]
-        
+
         const NFTBridgeBSC = await deployBSC('NFTBridge', NFTBridgeBSCArgs);
         contractsBSC.push({ name: 'NFTBridge', address: NFTBridgeBSC.address, args: NFTBridgeBSCArgs });
 
