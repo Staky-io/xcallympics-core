@@ -39,6 +39,11 @@ contract XCallympicsNFT is ERC721, ERC721Burnable, Ownable {
         _safeMint(_to, _id);
         ownerToIds[_to].push(_id);
     }
+    
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        _requireMinted(_tokenId);
+        return bytes(baseURI).length > 0 ? baseURI : "";
+    }
 
     function _beforeTokenTransfer(
         address _from,
