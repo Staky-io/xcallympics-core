@@ -124,7 +124,7 @@ contract NFTBridge is XCallBase {
         bytes memory payload = abi.encode("BRIDGE_NFT_FROM_CHAIN", abi.encode(_to, _id));
         bytes memory rollbackData = abi.encode("ROLLBACK_BRIDGE_NFT_FROM_CHAIN", abi.encode(msg.sender, _id));
 
-        token.safeTransferFrom(msg.sender, address(this), _id);
+        token.transferFrom(msg.sender, address(this), _id);
         token.burn(_id);
 
         _sendXCallMessage(_bridgeAddress, payload, rollbackData);

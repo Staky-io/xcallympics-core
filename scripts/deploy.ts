@@ -1,5 +1,5 @@
 import fs from "fs";
-import { ethers, run } from "hardhat";
+import { ethers } from "hardhat";
 import {
     getBSCNetworkSettings,
     getBSCSigner,
