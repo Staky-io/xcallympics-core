@@ -9,17 +9,17 @@ export const getNetworkSettings = (network: string): { callService: string, netw
     switch (network) {
         case 'sepolia':
             return {
-                callService: '0x9B68bd3a04Ff138CaFfFe6D96Bc330c699F34901',
+                callService: '0x694C1f5Fb4b81e730428490a1cE3dE6e32428637',
                 networkID: '0xaa36a7.eth2',
             }
         case 'bsc_testnet':
             return {
-                callService: '0x6193c0b12116c4963594761d859571b9950a8686',
+                callService: '0x5Ebb7aCB7bCaf7C1ADeFcF9660D39AC07d432904',
                 networkID: '0x61.bsc',
             }
         case 'hardhat':
             return {
-                callService: '0x9B68bd3a04Ff138CaFfFe6D96Bc330c699F34901',
+                callService: '0x694C1f5Fb4b81e730428490a1cE3dE6e32428637',
                 networkID: '0xaa36a7.eth2',
             }
         default:
