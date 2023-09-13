@@ -1,7 +1,7 @@
 [
     {
         "name": "RunnerNFT",
-        "address": "0xE539EA9884f278e79aA09Fdb4D76030098EC9Fb9",
+        "address": "0x08f41Fc446Ff192C7493afe4a2e7456527893339",
         "args": [
             "XCallympics Runner",
             "XCALLR",
@@ -10,9 +10,9 @@
     },
     {
         "name": "NFTBridge",
-        "address": "0x4cCb7B7167950a43A5cd81Cd122059adfc39741b",
+        "address": "0x36e0C34056E83A7A3761b6e9D49C1F2E6fDc69Ae",
         "args": [
-            "0xE539EA9884f278e79aA09Fdb4D76030098EC9Fb9",
+            "0x08f41Fc446Ff192C7493afe4a2e7456527893339",
             "0x694C1f5Fb4b81e730428490a1cE3dE6e32428637",
             "0xaa36a7.eth2"
         ]
