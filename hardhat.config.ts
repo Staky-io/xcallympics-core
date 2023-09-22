@@ -22,11 +22,6 @@ const config: HardhatUserConfig = {
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
     },
   },
-  gasReporter: {
-    currency: 'USD',
-    enabled: false, // set to true for gas reporting
-    token: 'ETH'
-  },
   networks: {
     hardhat: {
       forking: {
